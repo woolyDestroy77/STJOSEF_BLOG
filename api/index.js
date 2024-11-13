@@ -1,20 +1,31 @@
-import express from 'express'
-import mongoos from 'mongoose'
-import dotenv from 'dotenv'
+import express from 'express';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import userRoutes from './routes/user.route.js'
 
 dotenv.config();
 
-mongoos
-    .connect(process.env.MONGO)
-    .then(() => {
-        console.log('MongoDb is connected')
-    })
-    .catch(err => {
-        console.log(err)
-    })
+mongoose
+  .connect(process.env.MONGO)
+  .then(() => {
+    console.log('MONGODB IS CONNECTED!');
+  })
+  .catch((err) => {
+    console.log('Error connecting to MongoDB:', err);
+  });
 
 const app = express();
 
-app.listen(3000, () => {
-    console.log('Server is running on port 3000!!');
+const PORT = process.env.PORT || 3001;
+
+// Route for /test path only
+app.use('/api/user', userRoutes)
+
+// 404 handler for all other routes
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not found" });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
