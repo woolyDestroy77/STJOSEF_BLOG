@@ -1,7 +1,8 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import userRoutes from './routes/user.route.js'
+import userRoutes from './routes/user.route.js';
+import authRoutes from './routes/auth.route.js';
 
 dotenv.config();
 
@@ -15,16 +16,27 @@ mongoose
   });
 
 const app = express();
+app.use(express.json());
 
 const PORT = process.env.PORT || 3001;
 
-// Route for /test path only
-app.use('/api/user', userRoutes)
-
-// 404 handler for all other routes
-app.use((req, res) => {
-  res.status(404).json({ error: "Route not found" });
+app.get('/test', (req, res) => {
+  res.send('Welcome to the API!');
 });
+
+app.get('/', (req, res) => {
+  res.send('Welcome to the Home Page!');
+});
+
+app.get('/about', (req, res) => {
+  res.send('This is the About Page');
+});
+
+// Use the auth routes for `/api/auth`
+app.use('/api/auth', authRoutes);
+
+// Use the user routes for `/api/user`
+app.use('/api/user', userRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
