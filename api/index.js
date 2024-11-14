@@ -24,20 +24,15 @@ app.get('/test', (req, res) => {
   res.send('Welcome to the API!');
 });
 
-app.get('/', (req, res) => {
-  res.send('Welcome to the Home Page!');
-});
-
-app.get('/about', (req, res) => {
-  res.send('This is the About Page');
-});
-
-// Use the auth routes for `/api/auth`
 app.use('/api/auth', authRoutes);
-
-// Use the user routes for `/api/user`
 app.use('/api/user', userRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  const message = err.message || 'Initial Server Error';
+  res.status(statusCode).json({
+    success: false,
+    statusCode,
+    message,
+  })
+})
