@@ -38,11 +38,16 @@ export default function SignIn() {
 
       if (!response.ok) throw new Error(data.message || 'Signin failed');
 
-      dispatch(signInSuccess(data)); // Dispatch success action with data
-      localStorage.setItem('token', data.token); // Store token if needed
+      // Dispatch success action with user data and token
+      dispatch(signInSuccess({
+        user: data.user, // Assuming the response includes a user object
+        token: data.token, // Store JWT token
+      }));
+
+      localStorage.setItem('token', data.token); // Store token in localStorage
 
       setTimeout(() => {
-        navigate('/'); // Redirect after successful login
+        navigate('/'); // Redirect to home or protected page
       }, 1500);
     } catch (err) {
       dispatch(signInFailure(err.message || 'An error occurred. Please try again later.'));

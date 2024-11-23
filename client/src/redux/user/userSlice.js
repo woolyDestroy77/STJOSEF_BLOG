@@ -1,13 +1,14 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  currentUser: null,
+  currentUser: null, // User data (email, etc.)
+  token: null, // JWT token
   error: null,
   loading: false,
 };
 
 const userSlice = createSlice({
-  name: 'user',
+  name: "user",
   initialState,
   reducers: {
     signInStart: (state) => {
@@ -15,13 +16,14 @@ const userSlice = createSlice({
       state.error = null;
     },
     signInSuccess: (state, action) => {
-      state.currentUser = action.payload;
+      state.currentUser = action.payload.user; // Store user info (email, etc.)
+      state.token = action.payload.token; // Store token
       state.loading = false;
       state.error = null;
     },
     signInFailure: (state, action) => {
       state.loading = false;
-      state.error = action.payload; // Properly setting the error in state
+      state.error = action.payload;
     },
   },
 });
