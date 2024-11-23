@@ -158,7 +158,7 @@ export default function SignUp() {
 
           <div className="flex justify-center gap-2 text-base mt-5">
             <span>Have an account?</span>
-            <Link to="/sign-in" className="text-blue-500 hover:underline">
+            <Link to="/signin" className="text-blue-500 hover:underline">
               Sign In
             </Link>
           </div>

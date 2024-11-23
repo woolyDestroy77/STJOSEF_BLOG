@@ -72,7 +72,7 @@ export default function Header() {
           </Button>
           
           {/* Sign In Button with Gradient */}
-          <Link to="/sign-in">
+          <Link to="/signin">
             <Button
               className="px-4 py-2 text-white font-semibold rounded-lg bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 transition duration-1000 outline"
             >
