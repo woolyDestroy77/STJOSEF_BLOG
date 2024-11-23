@@ -1,28 +1,31 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { TextInput, Label, Button, Alert } from 'flowbite-react';
+import { TextInput, Label, Button } from 'flowbite-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSlice';
 
 export default function SignIn() {
   const [formData, setFormData] = useState({ email: '', password: '' });
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const navigate = useNavigate(); // Initialize navigate
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  // Get error and loading states from Redux store
+  const { error, loading: reduxLoading } = useSelector((state) => state.user);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
-    setErrorMessage(''); // Clear error message when user starts typing again
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
-      return setErrorMessage('Please fill out all the fields.');
+      return dispatch(signInFailure('Please fill out all the fields.'));
     }
-    setMessage('');
-    setError('');
-    setLoading(true); // Show loading spinner
+
+    setLoading(true); // Set loading state to true before API call
+    dispatch(signInStart()); // Dispatch the start action
 
     try {
       const response = await fetch('http://localhost:3001/api/auth/signin', {
@@ -32,22 +35,19 @@ export default function SignIn() {
       });
 
       const data = await response.json();
+
       if (!response.ok) throw new Error(data.message || 'Signin failed');
 
-      setMessage('Signin successful!'); // Show success message
+      dispatch(signInSuccess(data)); // Dispatch success action with data
+      localStorage.setItem('token', data.token); // Store token if needed
 
-      // Save JWT token to localStorage or state for further authentication (optional)
-      localStorage.setItem('token', data.token);
-
-      // Redirect to dashboard or home page after successful sign-in
       setTimeout(() => {
-        navigate('/'); // Navigate to a protected page (e.g., dashboard)
-      }, 1500); // Redirect after 1.5 seconds
+        navigate('/'); // Redirect after successful login
+      }, 1500);
     } catch (err) {
-      console.error(err.message);
-      setErrorMessage(err.message || 'An error occurred. Please try again later.');
+      dispatch(signInFailure(err.message || 'An error occurred. Please try again later.'));
     } finally {
-      setLoading(false); // Hide loading spinner
+      setLoading(false); // Hide the loading spinner
     }
   };
 
@@ -103,27 +103,8 @@ export default function SignIn() {
             </Button>
           </form>
 
-          {/* Success Message */}
-          {message && (
-            <div className="mt-4 flex items-center gap-3 bg-green-50 border border-green-200 text-green-700 p-4 rounded-lg shadow-sm">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 text-green-500"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 11.586 7.707 10.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <span className="font-medium">{message}</span>
-            </div>
-          )}
-
           {/* Error Message */}
-          {errorMessage && (
+          {error && (
             <div className="mt-4 flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg shadow-sm">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -137,12 +118,12 @@ export default function SignIn() {
                   clipRule="evenodd"
                 />
               </svg>
-              <span className="font-medium">{errorMessage}</span>
+              <span className="font-medium">{error}</span>
             </div>
           )}
 
           {/* Loading Spinner */}
-          {loading && (
+          {reduxLoading && (
             <div className="flex justify-center mt-4">
               <div className="w-16 h-16 border-t-4 border-b-4 border-purple-500 rounded-full animate-spin"></div>
             </div>
